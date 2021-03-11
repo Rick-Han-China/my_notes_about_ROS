@@ -208,12 +208,6 @@ while done == False:
         for i in range(buttons):
             button = joystick.get_button(i)
             #textPrint.print(screen, "Button {:>2} value: {}".format(i, button))
-            if i == 0 and button == 1:
-                print("catch 抓取")
-                hand.move(0)
-            if i == 1 and button == 1:
-                print("put down 松开")
-                hand.move(100)
             if i == 2 and button == 1:
                 print("locate 到达抓取位置附近")
                 pose = robot.getl()#获得各个关节的弧度值
