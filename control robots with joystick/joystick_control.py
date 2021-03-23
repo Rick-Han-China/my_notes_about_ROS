@@ -24,20 +24,21 @@ rob.speedl()
 attention
     this program can be used on xbox series and PS series, even all joysticks that can communicate with pygame can use this .py,
     all you need to do is give right function to different keys;
+    many functions with annotations below can make this file better, but to make it work easier on Raspberry Pi, I did not use them.
     这个程序并不只是适配xbox360手柄，对于常见手柄比如xbox系列，PS系列都可以，
     甚至说，凡是pygame库能读到的手柄都可以
 '''
 
-#hand = ZXHand(ip = '192.168.1.20')
+hand = ZXHand(ip = '192.168.1.20') #connect to end effector
 
-robot = urx.Robot("192.168.1.100") #PC通过网线与UR通信，注意网段
+robot = urx.Robot("192.168.1.100") #connect computer and UR3; PC通过网线与UR通信，注意网段
 
 r = robot
-robot.set_payload(2, (0, 0, 0)) #设置力相关，有时候通过改大一些第一个参数可以解决一些报错问题
-l = 0.01  # 单位是m
-rad = 1 #单位是rad
-v =0.5 #速度 m/s
-a = 0.5 # 加速度 m/s2
+robot.set_payload(2, (0, 0, 0)) #set parameters about forse; 设置力相关，有时候通过改大一些第一个参数可以解决一些报错问题
+l = 0.01  # distance m
+rad = 1 # rad/s
+v =0.5 # m/s
+a = 0.5 # acc m/s2
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -46,7 +47,7 @@ WHITE = (255, 255, 255)
 This is a simple class that will help us print to the screen
 It has nothing to do with the joysticks, just outputting the
 information.
-下面的这个类是用来把手柄的一些信息通过一个窗口打印出来的，其实没什么用，可以删掉
+you can delete information below(line51-72) if it is not necessary for you. 下面的这个类是用来把手柄的一些信息通过一个窗口打印出来的，其实没什么用，可以删掉
 '''
 
 # class TextPrint:
@@ -69,16 +70,15 @@ information.
 #
 #     def unindent(self):
 #         self.x -= 10
-#
-#
+
 pygame.init()
-#
+
 # #设置显示出来的小窗口的大小
 # size = [500, 600]
 #
 # screen = pygame.display.set_mode(size)
 #
-# pygame.display.set_caption("知行机器人")#窗口的标题
+# pygame.display.set_caption("知行机器人")# title of window
 #
 # # Loop until the user clicks the close button.
 done = False
@@ -131,72 +131,75 @@ while done == False:
 
         # Usually axis run in pairs, up/down for one, and left/right for
         # the other.
+        
         axes = joystick.get_numaxes()
+        
         # textPrint.print(screen, "Number of axes: {}".format(axes) )
         # textPrint.indent()
-        #按键的判断
+        
+        # get input from joystick 
         for i in range(axes):
             axis = joystick.get_axis(i)
             #textPrint.print(screen, "Axis {} value: {:>6.3f}".format(i, axis))
             if i == 1 and axis == -1.0:
-                print("向前")
+                print("end forward")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[1] += l #增量式赋值
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
-                time.sleep(0.2) #注释掉这句之后，发现顿挫感降低了，但是没法通过十字键调速了
+                time.sleep(0.2) # 注释掉这句之后，发现顿挫感降低了，但是没法通过十字键调速了
             if i == 1 and axis > 0.3:
-                print("向后")
+                print("end back")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[1] -= l
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 0 and axis == -1:
-                print("向左")
+                print("end left")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[0] += l
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 0 and axis > 0.3:
-                print("向右")
+                print("end right")
                 pose = [0,0,0,0,0,0]
                 pose[0] -= l
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 4 and axis == -1.0:
-                print("RX+")
+                print("end joint rotation align X+")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[3] += 0.1
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 4 and axis > 0.3:
-                print("RX-")#末端坐标系下的旋转
+                print("end joint rotation align X-")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[3] -= 0.1
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 3 and axis == -1:
-                print("RY-")#末端坐标系下的旋转
+                print("end joint rotation align Y-")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[4] -= 0.1
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 3 and axis > 0.3:
-                print("RY+")#末端坐标系下的旋转
+                print("end joint rotation align Y+")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[4] += 0.1
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 2 and axis > 0.995:
-                print("向下")
+                print("end down")
                 pose = [0, 0, 0, 0, 0, 0]
                 pose[2] += l
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 2 and axis < -0.995:
-                print("向上")
+                print("end up")
                 pose = [0,0,0,0,0,0]
                 pose[2] -= l
-                robot.movel_tool(pose, acc=a, vel=v, wait=0)#当使用tool指令时，pose是增量式的，当不使用tool指令时（使用robot.move（）时），pose是绝对值式的
+                robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
 
         #textPrint.unindent()
@@ -209,48 +212,44 @@ while done == False:
             button = joystick.get_button(i)
             #textPrint.print(screen, "Button {:>2} value: {}".format(i, button))
             if i == 2 and button == 1:
-                print("locate 到达抓取位置附近")
-                pose = robot.getl()#获得各个关节的弧度值
+                print("locate")
+                pose = robot.getl()# get position
                 robot.movej([1.807986, -1.839926, -1.055226, -1.782155, 1.6023867, 0], acc=a, vel=1, wait=0)#wait=0不要改
             if i == 3 and button == 1:
-                print("achieve 到达送出位置附近")
+                print("achieve")
                 robot.movel_tool([0,0,-0.05,0,0,0], acc=a, vel=0.5, wait=0)
                 time.sleep(0.5)
                 robot.movej([0.813847, -1.4069, -1.85842, -0.3303, 1.556, 0], acc=a, vel=1, wait=0)
             if i == 4 and button == 1:
-                print("contrarotate 末端关节逆时针旋转")
+                print("contrarotate")
                 pose = [0,0,0,0,0,0]
                 pose[5] -= 0.2
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 5 and button == 1:
-                print("clockwise rotation 末端关节顺时针旋转")
+                print("clockwise rotation")
                 pose = [0,0,0,0,0,0]
                 pose[5] += 0.2
                 robot.movel_tool(pose, acc=a, vel=v, wait=0)
                 time.sleep(0.2)
             if i == 6 and button == 1:
-                print("BACK")#这个按键没有给具体功能
+                print("BACK")#not used
             if i == 7 and button == 1:
-                print("START")#这个按键没有给具体功能
+                print("START")#not used
             if i == 8 and button == 1:
-                print("切换到直角状态")
+                print("move to a pose")
                 robot.movej([0, -1.57, -1.57, -1.57, 1.57, 0], acc=a, vel=1, wait=0)
-            if i == 9 and button == 1: #xbox360手柄上没有这个按键，可以换成其他按键更多的手柄试试
-                print("待更新的按键")
-                robot.movej([0, -1.57, 0, -1.57, 0, 0], acc=a, vel=1, wait=0)
-            if i == 10 and button == 1: #xbox360手柄上没有这个按键，可以换成其他按键更多的手柄试试
-                print("Right GA")
 
         #textPrint.unindent()
 
         # Hat switch. All or nothing for direction, not like joysticks.
         # Value comes back in an array.
+        
         hats = joystick.get_numhats()
         #textPrint.print(screen, "Number of hats: {}".format(hats))
         #textPrint.indent()
 
-        #以下代码用于调整末端的移动速度和距离，对应于手柄左下的十字键
+        # setting parameters about l rad v a
         for i in range(hats):
             hat = joystick.get_hat(i)
             #textPrint.print(screen, "Hat {} value: {}".format(i, str(hat)))
